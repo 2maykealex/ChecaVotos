@@ -37,7 +37,7 @@ class TseFunctions(object):
         except Exception as err:
             exception_type, exception_object, exception_traceback = exc_info()
             line_number = exception_traceback.tb_lineno
-            print('{}\n ERRO EM {} na linha {} >>>'.format(self.fileName, err, line_number))
+            print('---> ERRO NA LINHA {}: {} >>>'.format(line_number, err))
             return False
 
     def selecionaLocal(self):
@@ -175,20 +175,18 @@ class TseFunctions(object):
             dados = dados[0].split('\n')
             dados.remove('')
 
-            for item, tot in enumerate(totais):
-                if (item % 2):
-                    totalGeral.append(tot)
-                else:
-                    self.cabecalho.append(tot.upper())
+            # for item, tot in enumerate(totais):
+            #     if (item % 2):
+            #         totalGeral.append(tot)
+            #     else:
+            #         self.cabecalho.append(tot.upper())
 
             k = None
-            candidato = 1
             for item in range(len(dados)):
                 if (item % 2): #se é ímpar
                     dicionario.update({k: [dados[item]]})
-                    candidato = candidato + 1
                 else:
-                    k = 'CANDIDATO {}'.format(candidato)
+                    k = '{}'.format(dados[item])
 
                 totalGeral.append(dados[item])
             try:
@@ -204,8 +202,11 @@ class TseFunctions(object):
                 self.df = pd.DataFrame(dicionario)
                 # self.df = pd.Series(totalGeral, columns=self.cabecalho)
                 # self.df = pd.Series()
+            else:
+                self.df2 = None
+                self.df2 = pd.DataFrame(dicionario)
+                self.df3 = pd.concat([self.df, self.df2], ignore_index=True)
 
-            pd.concat([self.df, self.df2])
             # else:
             #     self.dfIncremental = pd.Series (totalGeral)
             #     pd.DataFrame(totalGeral, columns=list(self.cabecalho))
