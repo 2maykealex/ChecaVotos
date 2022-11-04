@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 from sys import exc_info
 from decouple import config
@@ -19,6 +20,7 @@ class TseFunctions(object):
         self.counter = 1
         self.cabecalho = []
         self.registros = {}
+        self.uf_atual = ''
         df = None
         dfIncremental = None
         # self.ufs = ['Acre – AC', 'Alagoas – AL', 'Amapá – AP', 'Amazonas – AM', 'Bahia – BA', 'Ceará – CE', 'Distrito Federal – DF', 'Espírito Santo – ES', 'Exterior – ZZ', 'Goiás – GO', 'Maranhão – MA', 'Mato Grosso – MT', 'Mato Grosso do Sul – MS', 'Minas Gerais – MG', 'Paraná – PR', 'Paraíba – PB', 'Pará – PA', 'Pernambuco – PE', 'Piauí – PI', 'Rio de Janeiro – RJ', 'Rio Grande do Norte – RN', 'Rio Grande do Sul – RS', 'Rondônia – RO', 'Roraima – RR', 'Santa Catarina – SC', 'Sergipe – SE', 'São Paulo – SP', 'Tocantins – TO']
@@ -67,8 +69,8 @@ class TseFunctions(object):
             return False
 
     def selecionaZona(self):
-        self.countZona = 0
-        selectedZona = False
+        self.countZona = 1
+        print('=============== INICIANDO O ESTADO: {} ==============='.format(self.uf_atual.upper()))
         try:
             while True:
                 try:
@@ -76,16 +78,15 @@ class TseFunctions(object):
                     self.driver.find_elements(self.By.TAG_NAME, 'mat-form-field')[0].click()
                     zonas = self.driver.find_elements(self.By.CLASS_NAME, 'mat-active')
                     if (self.countZona > len(zonas)):
-                        self.countZona  = 0
+                        print('=============== ENCERRADO O ESTADO: {} ==============='.format(self.uf_atual.upper()))
+                        self.countZona = 0
                         break
 
-                    zonas[self.countZona].click()
+                    zonas[self.countZona-1].click()
                     self.selecionaSecao()
+                    self.countZona = self.countZona + 1
                 except:
                     pass
-
-                if (selectedZona):
-                    return True
         except:
             return False
 
@@ -200,20 +201,12 @@ class TseFunctions(object):
 
             if (self.counter == 1):
                 self.df = pd.DataFrame(dicionario)
-                # self.df = pd.Series(totalGeral, columns=self.cabecalho)
-                # self.df = pd.Series()
             else:
                 self.df2 = None
                 self.df2 = pd.DataFrame(dicionario)
-                self.df3 = pd.concat([self.df, self.df2], ignore_index=True)
+                self.df = pd.concat([self.df, self.df2], ignore_index=True)#.replace(np.nan, 0)
 
-            # else:
-            #     self.dfIncremental = pd.Series (totalGeral)
-            #     pd.DataFrame(totalGeral, columns=list(self.cabecalho))
-            #     self.df
-            #     self.df1 = pd.concat([self.df, self.dfIncremental])
-            #     # for item, cab in enumerate(self.cabecalho):
-            #     #     self.df[cab].add(totalGeral[item])
+            print(self.df.tail(1))
 
             self.counter = self.counter + 1
             return True
