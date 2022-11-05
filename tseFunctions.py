@@ -53,20 +53,19 @@ class TseFunctions(object):
                     self.driver.find_elements(self.By.CLASS_NAME, 'leading-tight')[1].click()
                     sleep(1)
                     cidades = self.driver.find_elements(self.By.TAG_NAME, 'mat-option')
+                    cidades[self.countCity].click()
+
+                    self.driver.find_element(self.By.CLASS_NAME, 'button-block').click()
+                    self.selecionaZona()
+
+                    self.counter = 1
+                    self.countCity = self.countCity + 1
+                    self.acessTse(self.driver.current_url)
                     if (self.countCity > len(cidades)):
                         self.countCity  = 0
                         break
-
-                    cidades[self.countCity].click()
-                    self.countCity = self.countCity + 1
-                    self.driver.find_element(self.By.CLASS_NAME, 'button-block').click()
-                    selectedLocal = self.selecionaZona()
-                    self.counter = 1
                 except:
                     pass
-
-                if (selectedLocal):
-                    return True
 
             self.df.to_excel('logs\\{}.xlsx'.format(self.uf_atual), index=False)
         except:
@@ -80,15 +79,16 @@ class TseFunctions(object):
                 try:
                     sleep(1)
                     self.driver.find_elements(self.By.TAG_NAME, 'mat-form-field')[0].click()
+                    sleep(1)
                     zonas = self.driver.find_elements(self.By.CLASS_NAME, 'mat-active')
+                    zonas[self.countZona-1].click()
+                    self.selecionaSecao()
+
+                    self.countZona = self.countZona + 1
                     if (self.countZona > len(zonas)):
                         print('=============== ENCERRADO O ESTADO: {} ==============='.format(self.uf_atual.upper()))
                         self.countZona = 0
                         break
-
-                    zonas[self.countZona-1].click()
-                    self.selecionaSecao()
-                    self.countZona = self.countZona + 1
                 except:
                     pass
         except:
@@ -103,14 +103,14 @@ class TseFunctions(object):
                     sleep(1)
                     self.driver.find_elements(self.By.TAG_NAME, 'mat-form-field')[1].click()
                     secoes = self.driver.find_element(self.By.CLASS_NAME, 'cdk-overlay-container').find_elements(self.By.CLASS_NAME, 'mat-option')
+                    secoes[self.countSecao].click()
+                    self.driver.find_element(self.By.TAG_NAME, 'button').click() #botão pesquisa
+                    # self.getDataUrna()
+
+                    self.countSecao = self.countSecao + 1
                     if (self.countSecao > len(secoes)):
                         self.countSecao  = 0
                         return True
-
-                    secoes[self.countSecao].click()
-                    self.countSecao = self.countSecao + 1
-                    self.driver.find_element(self.By.TAG_NAME, 'button').click()
-                    self.getDataUrna()
                 except:
                     break
 
