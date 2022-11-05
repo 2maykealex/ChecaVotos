@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 from sys import exc_info
 from decouple import config
+from datetime import datetime
 from time import sleep, strftime
 from selenium_functions import SeleniumFunctions
 class TseFunctions(object):
@@ -22,6 +23,7 @@ class TseFunctions(object):
         self.cabecalho = []
         self.registros = {}
         self.uf_atual = ''
+        self.cidade_atual = ''
         df = None
         dfIncremental = None
         # self.ufs = ['Acre – AC', 'Alagoas – AL', 'Amapá – AP', 'Amazonas – AM', 'Bahia – BA', 'Ceará – CE', 'Distrito Federal – DF', 'Espírito Santo – ES', 'Exterior – ZZ', 'Goiás – GO', 'Maranhão – MA', 'Mato Grosso – MT', 'Mato Grosso do Sul – MS', 'Minas Gerais – MG', 'Paraná – PR', 'Paraíba – PB', 'Pará – PA', 'Pernambuco – PE', 'Piauí – PI', 'Rio de Janeiro – RJ', 'Rio Grande do Norte – RN', 'Rio Grande do Sul – RS', 'Rondônia – RO', 'Roraima – RR', 'Santa Catarina – SC', 'Sergipe – SE', 'São Paulo – SP', 'Tocantins – TO']
@@ -44,8 +46,8 @@ class TseFunctions(object):
             return False
 
     def selecionaLocal(self):
-        selectedLocal = False
         self.countCity  = 0
+        print('=============== INICIANDO O ESTADO: {} ==============='.format(self.uf_atual.upper()))
         try:
             while True:
                 try:
@@ -62,18 +64,21 @@ class TseFunctions(object):
                     self.countCity = self.countCity + 1
                     self.acessTse(self.driver.current_url)
                     if (self.countCity > len(cidades)):
+                        print('=============== ENCERRADO O ESTADO: {} ==============='.format(self.uf_atual.upper()))
                         self.countCity  = 0
                         break
+
+                    now = datetime.now().strftime('%Y-%m-%d %H:%M')
+                    now = now.replace(' ','__').replace('-','_').replace(':','_')
+                    self.df.to_excel('logs\\{}-{}-{}.xlsx'.format(now, self.uf_atual.upper(), self.cidade_atual), index=False)
                 except:
                     pass
 
-            self.df.to_excel('logs\\{}.xlsx'.format(self.uf_atual), index=False)
         except:
             return False
 
     def selecionaZona(self):
         self.countZona = 1
-        print('=============== INICIANDO O ESTADO: {} ==============='.format(self.uf_atual.upper()))
         try:
             while True:
                 try:
@@ -86,7 +91,6 @@ class TseFunctions(object):
 
                     self.countZona = self.countZona + 1
                     if (self.countZona > len(zonas)):
-                        print('=============== ENCERRADO O ESTADO: {} ==============='.format(self.uf_atual.upper()))
                         self.countZona = 0
                         break
                 except:
@@ -127,6 +131,7 @@ class TseFunctions(object):
             localidade = self.driver.find_element(self.By.TAG_NAME, 'app-selecionar-localidade2').text.split(', ')
             dicionario.update({'UF':[localidade[1]]})
             dicionario.update({'CIDADE':[localidade[0]]})
+            self.cidade_atual = localidade[0].upper()
             while True:
                 try:
                     sleep(1)
