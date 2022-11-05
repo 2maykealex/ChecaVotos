@@ -6,6 +6,9 @@ turnosUrls = ['https://resultados.tse.jus.br/oficial/app/index.html#/eleicao;e=e
               'https://resultados.tse.jus.br/oficial/app/index.html#/eleicao;e=e545;uf=ESTADO/dados-de-urna/boletim-de-urna']
 
 for t, turnoUrl in enumerate(turnosUrls):
+    if (t == 0): #pular para o segunto turno
+        continue
+
     for uf in ufs:
         print('\n---- {} TURNO ----'.format(t+1))
         url = turnoUrl.replace('=ESTADO/', '={}/'.format(uf))
