@@ -105,7 +105,7 @@ class TseFunctions(object):
                     secoes = self.driver.find_element(self.By.CLASS_NAME, 'cdk-overlay-container').find_elements(self.By.CLASS_NAME, 'mat-option')
                     secoes[self.countSecao].click()
                     self.driver.find_element(self.By.TAG_NAME, 'button').click() #botão pesquisa
-                    # self.getDataUrna()
+                    self.getDataUrna()
 
                     self.countSecao = self.countSecao + 1
                     if (self.countSecao > len(secoes)):
@@ -187,7 +187,7 @@ class TseFunctions(object):
                 self.df2 = pd.DataFrame(dicionario)
                 self.df = pd.concat([self.df, self.df2], ignore_index=True)#.replace(np.nan, 0)
 
-            print(self.df.drop(list(self.df.columns[2:10]), axis=1).tail(1))
+            # print(self.df.drop(list(self.df.columns[2:10]), axis=1).tail(1))
             self.counter = self.counter + 1
             self.counterGeral = self.counterGeral + 1
             return True
