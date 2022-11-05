@@ -18,6 +18,7 @@ class TseFunctions(object):
         self.countZona  = 0
         self.countSecao = 1
         self.counter = 1
+        self.counterGeral = 1
         self.cabecalho = []
         self.registros = {}
         self.uf_atual = ''
@@ -60,11 +61,14 @@ class TseFunctions(object):
                     self.countCity = self.countCity + 1
                     self.driver.find_element(self.By.CLASS_NAME, 'button-block').click()
                     selectedLocal = self.selecionaZona()
+                    self.counter = 1
                 except:
                     pass
 
                 if (selectedLocal):
                     return True
+
+            self.df.to_excel('logs\\{}.xlsx'.format(self.uf_atual), index=False)
         except:
             return False
 
@@ -116,20 +120,13 @@ class TseFunctions(object):
     def getDataUrna(self):
         try:
             dicionario = {}
-
             self.cabecalho = []
             self.cabecalho.append('UF')
             self.cabecalho.append('CIDADE')
 
-            totalGeral = []
             localidade = self.driver.find_element(self.By.TAG_NAME, 'app-selecionar-localidade2').text.split(', ')
-
             dicionario.update({'UF':[localidade[1]]})
             dicionario.update({'CIDADE':[localidade[0]]})
-
-            totalGeral.append(localidade[1])
-            totalGeral.append(localidade[0].upper())
-
             while True:
                 try:
                     sleep(1)
@@ -176,28 +173,12 @@ class TseFunctions(object):
             dados = dados[0].split('\n')
             dados.remove('')
 
-            # for item, tot in enumerate(totais):
-            #     if (item % 2):
-            #         totalGeral.append(tot)
-            #     else:
-            #         self.cabecalho.append(tot.upper())
-
             k = None
             for item in range(len(dados)):
                 if (item % 2): #se é ímpar
                     dicionario.update({k: [dados[item]]})
                 else:
                     k = '{}'.format(dados[item])
-
-                totalGeral.append(dados[item])
-            try:
-                totalGeral.remove('')
-            except:
-                pass
-
-            # registro = {}
-            # for item in range(len(totalGeral)):
-            #     registro.update({self.cabecalho[item]: totalGeral[item]})
 
             if (self.counter == 1):
                 self.df = pd.DataFrame(dicionario)
@@ -206,9 +187,9 @@ class TseFunctions(object):
                 self.df2 = pd.DataFrame(dicionario)
                 self.df = pd.concat([self.df, self.df2], ignore_index=True)#.replace(np.nan, 0)
 
-            print(self.df.tail(1))
-
+            print(self.df.drop(list(self.df.columns[2:10]), axis=1).tail(1))
             self.counter = self.counter + 1
+            self.counterGeral = self.counterGeral + 1
             return True
 
         except:
