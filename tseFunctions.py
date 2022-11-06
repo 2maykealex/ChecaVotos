@@ -1,9 +1,9 @@
 import numpy as np
 import pandas as pd
+from time import sleep
 from sys import exc_info
 from decouple import config
 from datetime import datetime
-from time import sleep, strftime
 from selenium_functions import SeleniumFunctions
 class TseFunctions(object):
 
@@ -24,6 +24,8 @@ class TseFunctions(object):
         self.registros = {}
         self.uf_atual = ''
         self.cidade_atual = ''
+        self.zona_atual = ''
+        self.secao_atual = ''
         df = None
         dfIncremental = None
         # self.ufs = ['Acre – AC', 'Alagoas – AL', 'Amapá – AP', 'Amazonas – AM', 'Bahia – BA', 'Ceará – CE', 'Distrito Federal – DF', 'Espírito Santo – ES', 'Exterior – ZZ', 'Goiás – GO', 'Maranhão – MA', 'Mato Grosso – MT', 'Mato Grosso do Sul – MS', 'Minas Gerais – MG', 'Paraná – PR', 'Paraíba – PB', 'Pará – PA', 'Pernambuco – PE', 'Piauí – PI', 'Rio de Janeiro – RJ', 'Rio Grande do Norte – RN', 'Rio Grande do Sul – RS', 'Rondônia – RO', 'Roraima – RR', 'Santa Catarina – SC', 'Sergipe – SE', 'São Paulo – SP', 'Tocantins – TO']
@@ -32,11 +34,10 @@ class TseFunctions(object):
         try:
             if (not(self.driver)):
                 modSilent= config('MODSILENT')
-                print("\nINICIANDO WebDriver")
                 self.driver = self.selenium.iniciaWebdriver(webDriverNumero = self.webDriverNumero, modSilent=modSilent)
+                print('LOGIN REALIZADO NO INTEGRA')
 
             self.driver.get(url)
-            print('LOGIN REALIZADO NO INTEGRA')
             return True
 
         except Exception as err:
@@ -86,6 +87,7 @@ class TseFunctions(object):
                     self.driver.find_elements(self.By.TAG_NAME, 'mat-form-field')[0].click()
                     sleep(1)
                     zonas = self.driver.find_elements(self.By.CLASS_NAME, 'mat-active')
+                    self.zona_atual = zonas[self.countZona-1].text
                     zonas[self.countZona-1].click()
                     self.selecionaSecao()
 
@@ -100,13 +102,13 @@ class TseFunctions(object):
 
     def selecionaSecao(self):
         self.countSecao = 1
-        selectedSecao = False
         try:
             while True:
                 try:
                     sleep(1)
                     self.driver.find_elements(self.By.TAG_NAME, 'mat-form-field')[1].click()
                     secoes = self.driver.find_element(self.By.CLASS_NAME, 'cdk-overlay-container').find_elements(self.By.CLASS_NAME, 'mat-option')
+                    self.secao_atual = secoes[self.countSecao].text
                     secoes[self.countSecao].click()
                     self.driver.find_element(self.By.TAG_NAME, 'button').click() #botão pesquisa
                     self.getDataUrna()
@@ -195,6 +197,8 @@ class TseFunctions(object):
             # print(self.df.drop(list(self.df.columns[2:10]), axis=1).tail(1))
             self.counter = self.counter + 1
             self.counterGeral = self.counterGeral + 1
+
+            print('{} - {} - {} - {} - {}'.format(self.counterGeral, self.uf_atual, self.cidade_atual, self.countZona, self.secao_atual))
             return True
 
         except:
