@@ -22,10 +22,15 @@ class TseFunctions(object):
         self.counterGeral = 1
         self.cabecalho = []
         self.registros = {}
+
+        self.turno_atual = ''
         self.uf_atual = ''
         self.cidade_atual = ''
         self.zona_atual = ''
         self.secao_atual = ''
+
+        self.zonas = []
+        self.secoes = []
         df = None
         dfIncremental = None
         # self.ufs = ['Acre – AC', 'Alagoas – AL', 'Amapá – AP', 'Amazonas – AM', 'Bahia – BA', 'Ceará – CE', 'Distrito Federal – DF', 'Espírito Santo – ES', 'Exterior – ZZ', 'Goiás – GO', 'Maranhão – MA', 'Mato Grosso – MT', 'Mato Grosso do Sul – MS', 'Minas Gerais – MG', 'Paraná – PR', 'Paraíba – PB', 'Pará – PA', 'Pernambuco – PE', 'Piauí – PI', 'Rio de Janeiro – RJ', 'Rio Grande do Norte – RN', 'Rio Grande do Sul – RS', 'Rondônia – RO', 'Roraima – RR', 'Santa Catarina – SC', 'Sergipe – SE', 'São Paulo – SP', 'Tocantins – TO']
@@ -59,7 +64,8 @@ class TseFunctions(object):
                     cidades[self.countCity].click()
 
                     self.driver.find_element(self.By.CLASS_NAME, 'button-block').click()
-                    self.selecionaZona()
+                    self.obtemZonasSecoesCidade()
+                    self.acessaUrl()
 
                     self.counter = 1
                     self.countCity = self.countCity + 1
@@ -78,27 +84,31 @@ class TseFunctions(object):
         except:
             return False
 
-    def selecionaZona(self):
-        self.countZona = 1
-        try:
-            while True:
-                try:
-                    sleep(1)
-                    self.driver.find_elements(self.By.TAG_NAME, 'mat-form-field')[0].click()
-                    sleep(1)
-                    zonas = self.driver.find_elements(self.By.CLASS_NAME, 'mat-active')
-                    self.zona_atual = zonas[self.countZona-1].text
-                    zonas[self.countZona-1].click()
-                    self.selecionaSecao()
+    def obtemZonasSecoesCidade(self):
+        sleep(1)
+        self.driver.find_elements(self.By.TAG_NAME, 'mat-form-field')[0].click()
+        zonas = self.driver.find_elements(self.By.CLASS_NAME, 'mat-active')
+        for zona in zonas:
+            self.zonas.append('{}'.format(zona.text.replace('Zona ','')))
+        zonas[0].click()
 
-                    self.countZona = self.countZona + 1
-                    if (self.countZona > len(zonas)):
-                        self.countZona = 0
-                        break
-                except:
-                    pass
-        except:
-            return False
+        self.driver.find_elements(self.By.TAG_NAME, 'mat-form-field')[1].click()
+        secoes = self.driver.find_element(self.By.CLASS_NAME, 'cdk-overlay-container').find_elements(self.By.CLASS_NAME, 'mat-option')
+        for secao in secoes:
+            self.secoes.append('{}'.format(secao.text.replace('Seção ','')))
+        secoes[0].click()
+
+    def acessaUrl(self):
+
+        url = 'https://resultados.tse.jus.br/oficial/app/index.html#/eleicao;e=TURNO;uf=ESTADO;zn=ZONA;se=SECAO/dados-de-urna/boletim-de-urna'.replace('TURNO', self.turno_atual)
+
+        for zona in self.zonas:
+
+            for secao in self.secoes:
+
+                self.acessTse(url.replace('ZONA', '{}'.format(zona)).replace('SECAO', '{}'.format(secao)))
+
+
 
     def selecionaSecao(self):
         self.countSecao = 1
