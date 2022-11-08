@@ -50,7 +50,6 @@ class TseFunctions(object):
             return False
 
     def selecionaLocal(self):
-        self.countCity  = 0
         print('=============== INICIANDO O ESTADO: {} ==============='.format(self.uf_atual.upper()))
         try:
             while True:
@@ -205,7 +204,7 @@ class TseFunctions(object):
                 self.df = pd.concat([self.df, self.df2], ignore_index=True)#.replace(np.nan, 0)
 
             self.counter = self.counter + 1
-            self.counterGeral = self.counterGeral + 1            
+            self.counterGeral = self.counterGeral + 1
             print('{} - {} - {} - {}(f-{}) - {}(f-{})'.format(self.counterGeral, self.uf_atual, self.cidade_atual, self.zona_atual, len(self.zonas)-self.countZona, self.secao_atual, len(self.secoes)-self.countSecao).upper())
             return True
 
