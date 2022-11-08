@@ -1,4 +1,3 @@
-import numpy as np
 import pandas as pd
 from time import sleep
 from sys import exc_info
@@ -28,12 +27,11 @@ class TseFunctions(object):
         self.cidade_atual = ''
         self.zona_atual = ''
         self.secao_atual = ''
+        self.url_atual = ''
 
-        self.zonas = []
+        self.zonas  = []
         self.secoes = []
         df = None
-        dfIncremental = None
-        # self.ufs = ['Acre – AC', 'Alagoas – AL', 'Amapá – AP', 'Amazonas – AM', 'Bahia – BA', 'Ceará – CE', 'Distrito Federal – DF', 'Espírito Santo – ES', 'Exterior – ZZ', 'Goiás – GO', 'Maranhão – MA', 'Mato Grosso – MT', 'Mato Grosso do Sul – MS', 'Minas Gerais – MG', 'Paraná – PR', 'Paraíba – PB', 'Pará – PA', 'Pernambuco – PE', 'Piauí – PI', 'Rio de Janeiro – RJ', 'Rio Grande do Norte – RN', 'Rio Grande do Sul – RS', 'Rondônia – RO', 'Roraima – RR', 'Santa Catarina – SC', 'Sergipe – SE', 'São Paulo – SP', 'Tocantins – TO']
 
     def acessTse(self, url):
         try:
@@ -65,11 +63,11 @@ class TseFunctions(object):
 
                     self.driver.find_element(self.By.CLASS_NAME, 'button-block').click()
                     self.obtemZonasSecoesCidade()
-                    self.acessaUrl()
+                    self.obterDadosUrna()
+                    self.acessaViaUrl()
 
                     self.counter = 1
                     self.countCity = self.countCity + 1
-                    self.acessTse(self.driver.current_url)
                     if (self.countCity > len(cidades)):
                         print('=============== ENCERRADO O ESTADO: {} ==============='.format(self.uf_atual.upper()))
                         self.countCity  = 0
@@ -80,7 +78,6 @@ class TseFunctions(object):
                     self.df.to_excel('logs\\{}-{}-{}.xlsx'.format(now, self.uf_atual.upper(), self.cidade_atual), index=False)
                 except:
                     pass
-
         except:
             return False
 
@@ -91,9 +88,9 @@ class TseFunctions(object):
                 self.driver.find_elements(self.By.TAG_NAME, 'mat-form-field')[0].click()
                 sleep(.2)
                 zonas = self.driver.find_elements(self.By.CLASS_NAME, 'mat-active')
-                if (len(zonas) > 1):
-                    for zona in zonas:
-                        self.zonas.append('{}'.format(zona.text.replace('Zona ','')))
+                for zona in zonas:
+                    self.zonas.append('{}'.format(zona.text.replace('Zona ','')))
+                self.zona_atual = zonas[self.countZona].text.replace('Zona ','')
                 zonas[self.countZona].click()
 
                 self.driver.find_elements(self.By.TAG_NAME, 'mat-form-field')[1].click()
@@ -103,50 +100,28 @@ class TseFunctions(object):
                     if (secao.text.replace('Seção ','') == 'Seção'):
                         continue
                     self.secoes.append('{}'.format(secao.text.replace('Seção ','')))
+                self.secao_atual = secoes[self.countSecao].text.replace('Seção ','')
                 secoes[self.countSecao].click()
+
+                self.driver.find_element(self.By.TAG_NAME, 'button').click() #botão pesquisa
+                sleep(1)
+
+                self.url_atual = self.driver.current_url
                 break
 
             except:
                 pass
 
-    def acessaUrl(self):
-
-        url = 'https://resultados.tse.jus.br/oficial/app/index.html#/eleicao;e=TURNO;uf=ESTADO;zn=ZONA;se=SECAO/dados-de-urna/boletim-de-urna'.replace('TURNO', self.turno_atual).replace('ESTADO', self.uf_atual)
-
+    def acessaViaUrl(self):
         for zona in self.zonas:
-
             for secao in self.secoes:
-
-                urlreal = url.replace('ZONA', '{}'.format(zona)).replace('SECAO', '{}'.format(secao))
-
+                urlreal = ''
+                urlreal = '{};zn={};se={}/dados-de-urna/boletim-de-urna'.format(self.url_atual.split(';zn')[0], zona, secao)
                 self.acessTse(urlreal)
+                sleep(.3)
+                self.obterDadosUrna()
 
-
-
-    def selecionaSecao(self):
-        self.countSecao = 1
-        try:
-            while True:
-                try:
-                    sleep(1)
-                    self.driver.find_elements(self.By.TAG_NAME, 'mat-form-field')[1].click()
-                    secoes = self.driver.find_element(self.By.CLASS_NAME, 'cdk-overlay-container').find_elements(self.By.CLASS_NAME, 'mat-option')
-                    self.secao_atual = secoes[self.countSecao].text
-                    secoes[self.countSecao].click()
-                    self.driver.find_element(self.By.TAG_NAME, 'button').click() #botão pesquisa
-                    self.getDataUrna()
-
-                    self.countSecao = self.countSecao + 1
-                    if (self.countSecao > len(secoes)):
-                        self.countSecao  = 0
-                        return True
-                except:
-                    break
-
-        except:
-            return False
-
-    def getDataUrna(self):
+    def obterDadosUrna(self):
         try:
             dicionario = {}
             self.cabecalho = []
@@ -217,11 +192,9 @@ class TseFunctions(object):
                 self.df2 = pd.DataFrame(dicionario)
                 self.df = pd.concat([self.df, self.df2], ignore_index=True)#.replace(np.nan, 0)
 
-            # print(self.df.drop(list(self.df.columns[2:10]), axis=1).tail(1))
             self.counter = self.counter + 1
             self.counterGeral = self.counterGeral + 1
-
-            print('{} - {} - {} - {} - {}'.format(self.counterGeral, self.uf_atual, self.cidade_atual, self.countZona, self.secao_atual))
+            print('{} - {} - {} - {} - {}'.format(self.counterGeral, self.uf_atual, self.cidade_atual, self.zona_atual, self.secao_atual).upper())
             return True
 
         except:
