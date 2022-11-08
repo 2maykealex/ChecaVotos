@@ -36,7 +36,7 @@ class TseFunctions(object):
     def acessTse(self, url):
         try:
             if (not(self.driver)):
-                modSilent= config('MODSILENT')
+                modSilent= bool(config('MODSILENT'))
                 self.driver = self.selenium.iniciaWebdriver(webDriverNumero = self.webDriverNumero, modSilent=modSilent)
                 print('LOGIN REALIZADO NO INTEGRA')
 
