@@ -29,6 +29,7 @@ for t, turnoUrl in enumerate(turnosUrls):
         print('\n---- {} TURNO ----'.format(t+1))
         url = turnoUrl.replace('=ESTADO/', '={}/'.format(uf))
         tse.acessTse(url)
+        tse.totCity  = 0
         tse.uf_atual = '{}'.format(uf)
         tse.turno_atual = '{}'.format(turnos[t])
         tse.selecionaLocal()
