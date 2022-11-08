@@ -63,9 +63,9 @@ class TseFunctions(object):
 
                     self.driver.find_element(self.By.CLASS_NAME, 'button-block').click()
                     self.obtemZonasSecoesCidade()
-                    self.countZona = self.countZona + 1
                     self.obterDadosUrna()
-                    self.countSecao = self.countSecao + 1
+                    self.countZona = self.countZona + 1
+                    del self.secoes[0]
                     self.acessaViaUrl()
 
                     self.counter = 1
@@ -91,6 +91,8 @@ class TseFunctions(object):
                 sleep(1)
                 self.driver.find_elements(self.By.TAG_NAME, 'mat-form-field')[0].click()
                 sleep(.2)
+                zonas = None
+                self.zonas = []
                 zonas = self.driver.find_elements(self.By.CLASS_NAME, 'mat-active')
                 for zona in zonas:
                     self.zonas.append('{}'.format(zona.text.replace('Zona ','')))
@@ -99,6 +101,8 @@ class TseFunctions(object):
 
                 self.driver.find_elements(self.By.TAG_NAME, 'mat-form-field')[1].click()
                 sleep(.2)
+                secoes = None
+                self.secoes = []
                 secoes = self.driver.find_element(self.By.CLASS_NAME, 'cdk-overlay-container').find_elements(self.By.CLASS_NAME, 'mat-option')
                 for secao in secoes:
                     if (secao.text.replace('Seção ','') == 'Seção'):
@@ -123,6 +127,7 @@ class TseFunctions(object):
                 urlreal = '{};zn={};se={}/dados-de-urna/boletim-de-urna'.format(self.url_atual.split(';zn')[0], zona, secao)
                 self.acessTse(urlreal)
                 sleep(.3)
+                self.secao_atual = secao
                 self.obterDadosUrna()
                 self.countSecao = self.countSecao + 1
 
@@ -200,7 +205,7 @@ class TseFunctions(object):
                 self.df = pd.concat([self.df, self.df2], ignore_index=True)#.replace(np.nan, 0)
 
             self.counter = self.counter + 1
-            self.counterGeral = self.counterGeral + 1
+            self.counterGeral = self.counterGeral + 1            
             print('{} - {} - {} - {}(f-{}) - {}(f-{})'.format(self.counterGeral, self.uf_atual, self.cidade_atual, self.zona_atual, len(self.zonas)-self.countZona, self.secao_atual, len(self.secoes)-self.countSecao).upper())
             return True
 
