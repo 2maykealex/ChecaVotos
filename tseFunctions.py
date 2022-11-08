@@ -69,6 +69,8 @@ class TseFunctions(object):
                     self.acessaViaUrl()
 
                     self.counter = 1
+                    self.countZona = 0
+                    self.countSecao = 1
                     self.countCity = self.countCity + 1
                     if (self.countCity > len(cidades)):
                         print('=============== ENCERRADO O ESTADO: {} ==============='.format(self.uf_atual.upper()))
