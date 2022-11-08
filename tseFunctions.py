@@ -85,20 +85,29 @@ class TseFunctions(object):
             return False
 
     def obtemZonasSecoesCidade(self):
-        sleep(1)
-        self.driver.find_elements(self.By.TAG_NAME, 'mat-form-field')[0].click()
-        zonas = self.driver.find_elements(self.By.CLASS_NAME, 'mat-active')
-        for zona in zonas:
-            self.zonas.append('{}'.format(zona.text.replace('Zona ','')))
-        zonas[0].click()
+        while True:
+            try:
+                sleep(1)
+                self.driver.find_elements(self.By.TAG_NAME, 'mat-form-field')[0].click()
+                sleep(.2)
+                zonas = self.driver.find_elements(self.By.CLASS_NAME, 'mat-active')
+                if (len(zonas) > 1):
+                    for zona in zonas:
+                        self.zonas.append('{}'.format(zona.text.replace('Zona ','')))
+                zonas[self.countZona].click()
 
-        self.driver.find_elements(self.By.TAG_NAME, 'mat-form-field')[1].click()
-        secoes = self.driver.find_element(self.By.CLASS_NAME, 'cdk-overlay-container').find_elements(self.By.CLASS_NAME, 'mat-option')
-        for secao in secoes:
-            if (secao.text.replace('Seção ','') == 'Seção'):
-                continue
-            self.secoes.append('{}'.format(secao.text.replace('Seção ','')))
-        secoes[0].click()
+                self.driver.find_elements(self.By.TAG_NAME, 'mat-form-field')[1].click()
+                sleep(.2)
+                secoes = self.driver.find_element(self.By.CLASS_NAME, 'cdk-overlay-container').find_elements(self.By.CLASS_NAME, 'mat-option')
+                for secao in secoes:
+                    if (secao.text.replace('Seção ','') == 'Seção'):
+                        continue
+                    self.secoes.append('{}'.format(secao.text.replace('Seção ','')))
+                secoes[self.countSecao].click()
+                break
+
+            except:
+                pass
 
     def acessaUrl(self):
 
