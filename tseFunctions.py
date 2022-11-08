@@ -18,7 +18,7 @@ class TseFunctions(object):
         self.countZona  = 0
         self.countSecao = 1
         self.counter = 1
-        self.counterGeral = 1
+        self.counterGeral = 0
         self.cabecalho = []
         self.registros = {}
 
@@ -63,7 +63,9 @@ class TseFunctions(object):
 
                     self.driver.find_element(self.By.CLASS_NAME, 'button-block').click()
                     self.obtemZonasSecoesCidade()
+                    self.countZona = self.countZona + 1
                     self.obterDadosUrna()
+                    self.countSecao = self.countSecao + 1
                     self.acessaViaUrl()
 
                     self.counter = 1
@@ -120,6 +122,9 @@ class TseFunctions(object):
                 self.acessTse(urlreal)
                 sleep(.3)
                 self.obterDadosUrna()
+                self.countSecao = self.countSecao + 1
+
+            self.countZona = self.countZona + 1
 
     def obterDadosUrna(self):
         try:
@@ -194,7 +199,7 @@ class TseFunctions(object):
 
             self.counter = self.counter + 1
             self.counterGeral = self.counterGeral + 1
-            print('{} - {} - {} - {} - {}'.format(self.counterGeral, self.uf_atual, self.cidade_atual, self.zona_atual, self.secao_atual).upper())
+            print('{} - {} - {} - {}(f-{}) - {}(f-{})'.format(self.counterGeral, self.uf_atual, self.cidade_atual, self.zona_atual, len(self.zonas)-self.countZona, self.secao_atual, len(self.secoes)-self.countSecao).upper())
             return True
 
         except:
