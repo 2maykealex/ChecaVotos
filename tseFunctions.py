@@ -95,18 +95,22 @@ class TseFunctions(object):
         self.driver.find_elements(self.By.TAG_NAME, 'mat-form-field')[1].click()
         secoes = self.driver.find_element(self.By.CLASS_NAME, 'cdk-overlay-container').find_elements(self.By.CLASS_NAME, 'mat-option')
         for secao in secoes:
+            if (secao.text.replace('Seção ','') == 'Seção'):
+                continue
             self.secoes.append('{}'.format(secao.text.replace('Seção ','')))
         secoes[0].click()
 
     def acessaUrl(self):
 
-        url = 'https://resultados.tse.jus.br/oficial/app/index.html#/eleicao;e=TURNO;uf=ESTADO;zn=ZONA;se=SECAO/dados-de-urna/boletim-de-urna'.replace('TURNO', self.turno_atual)
+        url = 'https://resultados.tse.jus.br/oficial/app/index.html#/eleicao;e=TURNO;uf=ESTADO;zn=ZONA;se=SECAO/dados-de-urna/boletim-de-urna'.replace('TURNO', self.turno_atual).replace('ESTADO', self.uf_atual)
 
         for zona in self.zonas:
 
             for secao in self.secoes:
 
-                self.acessTse(url.replace('ZONA', '{}'.format(zona)).replace('SECAO', '{}'.format(secao)))
+                urlreal = url.replace('ZONA', '{}'.format(zona)).replace('SECAO', '{}'.format(secao))
+
+                self.acessTse(urlreal)
 
 
 
