@@ -15,6 +15,7 @@ class TseFunctions(object):
         self.ufCounter = 1
         self.countState = 0
         self.countCity  = 0
+        self.totCity  = 0
         self.countZona  = 0
         self.countSecao = 1
         self.counter = 1
@@ -38,7 +39,7 @@ class TseFunctions(object):
             if (not(self.driver)):
                 modSilent= bool(config('MODSILENT'))
                 self.driver = self.selenium.iniciaWebdriver(webDriverNumero = self.webDriverNumero, modSilent=modSilent)
-                print('LOGIN REALIZADO NO INTEGRA')
+                print('ACESSO REALIZADO NO TSE')
 
             self.driver.get(url)
             return True
@@ -58,6 +59,7 @@ class TseFunctions(object):
                     self.driver.find_elements(self.By.CLASS_NAME, 'leading-tight')[1].click()
                     sleep(1)
                     cidades = self.driver.find_elements(self.By.TAG_NAME, 'mat-option')
+                    self.totCity = len(cidades) - self.countCity
                     cidades[self.countCity].click()
 
                     self.driver.find_element(self.By.CLASS_NAME, 'button-block').click()
@@ -129,7 +131,6 @@ class TseFunctions(object):
                 self.secao_atual = secao
                 self.obterDadosUrna()
                 self.countSecao = self.countSecao + 1
-
             self.countZona = self.countZona + 1
 
     def obterDadosUrna(self):
@@ -156,7 +157,6 @@ class TseFunctions(object):
                             dicionario.update({k:[ident]})
                         else:
                             k = ident.upper()
-
                     break
                 except:
                     pass
@@ -205,7 +205,7 @@ class TseFunctions(object):
 
             self.counter = self.counter + 1
             self.counterGeral = self.counterGeral + 1
-            print('{} - {} - {} - {}(f-{}) - {}(f-{})'.format(self.counterGeral, self.uf_atual, self.cidade_atual, self.zona_atual, len(self.zonas)-self.countZona, self.secao_atual, len(self.secoes)-self.countSecao).upper())
+            print('{} - {} - {}(f-{}) - {}(f-{}) - {}(f-{})'.format(self.counterGeral, self.uf_atual, self.cidade_atual, self.totCity, self.zona_atual, len(self.zonas)-self.countZona, self.secao_atual, len(self.secoes)-self.countSecao).upper())
             return True
 
         except:
